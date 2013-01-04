@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  body: 
+  type: 
+  choices: 
+  required_column: false
+
+two:
+  body: 
+  type: 
+  choices: 
+  required_column: false

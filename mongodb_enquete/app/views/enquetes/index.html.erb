@@ -1,0 +1,23 @@
+<h1>Listing enquetes</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @enquetes.each do |enquete| %>
+  <tr>
+    <td><%= enquete.name %></td>
+    <td><%= link_to 'Show', enquete %></td>
+    <td><%= link_to 'Edit', edit_enquete_path(enquete) %></td>
+    <td><%= link_to 'Destroy', enquete, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Enquete', new_enquete_path %>
