@@ -3,5 +3,7 @@ class Question
   field :body, type: Object
   field :type, type: String
   field :choices, type: Array
-  field :required_column, type: Boolean
+  field :required_column, type: Boolean, :default => false
+  embedded_in :enquete
+  validates_presence_of :body, :type
 end

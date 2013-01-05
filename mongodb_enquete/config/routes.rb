@@ -1,9 +1,17 @@
 MongodbEnquete::Application.routes.draw do
-  resources :answers
+  resources :answers do
+    collection do
+      get 'list'
+    end
+  end
 
   resources :questions
 
-  resources :enquetes
+  resources :enquetes do
+    collection do
+      get 'create_default'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

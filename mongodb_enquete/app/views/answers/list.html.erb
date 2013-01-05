@@ -1,0 +1,42 @@
+<style>
+  table {
+    border: 1px solid black;
+    border-spacing: 0px;
+    border-collapse: collapse;
+  }
+  table th {
+    background-color: silver;
+  }
+  table th, td {
+    border: 1px solid black;
+    padding: 2px;
+  }
+</style>
+
+<table>
+  <% @answers.each_with_index do |answer, i| %>
+    <% _keys = answer.attributes.keys.select{|k| k =~ /^q/}.sort{|a, b| a.split(/_/)[1].to_i <=> b.split(/_/)[1].to_i} %>
+    <% if i.zero? %>
+      <tr>
+        <% _keys.each do |key| %>
+          <th><%= key %></th>
+        <% end %>
+      </tr>
+    <% end %>
+    <tr>
+      <% _keys.each do |key| %>
+        <td>
+          <% if answer[key].instance_of?(Array) %>
+            <%= answer[key].join(', ') %>
+          <% else %>
+            <% if answer[key].instance_of?(String) %>
+              <%= answer[key].gsub("\n", "<br />") %>
+            <% else %>
+              <%= answer[key] %>
+            <% end %>
+          <% end %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

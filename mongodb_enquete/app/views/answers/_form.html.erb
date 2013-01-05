@@ -1,25 +1,40 @@
-<%= form_for(@answer) do |f| %>
-  <% if @answer.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@answer.errors.count, "error") %> prohibited this answer from being saved:</h2>
-
-      <ul>
-      <% @answer.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
+﻿<%= form_for(@answer, url: {action: 'create'}) do |f| %>
+  <% @enquete.questions.sort{|a,b| a.question_number.split(/_/)[1].to_i <=> b.question_number.split(/_/)[1].to_i}.each do |q| %>
+    <% @answer[q.question_number] = nil %>
+    <% n = q.question_number.split(/_/)[1].to_i %>
+    <div class="header">質問<%= n %></div>
+    <div class="question">
+      <% if @err_msg && @err_msg[q.question_number] %>
+        <span class="err_msg"><%= @err_msg[q.question_number] %></span>
       <% end %>
-      </ul>
+      <div class="title"><%= q.body %> <%= %Q!<span class="requires">※必須</span>! if q.required_column %></div>
+      <% if q.type == 'text' %>
+        <%= f.text_field q.question_number %>
+      <% elsif q.type == 'radio' %>
+        <% q.choices.each_with_index do |choice, i| %>
+          <%= check_box_tag "answer[#{q.question_number}][]", i, false, id: "answer_#{q.question_number}_#{i}" %>
+          <label for="answer_<%= q.question_number %>_<%= i %>"><%= choice %></label><br />
+        <% end %>
+      <% elsif q.type == 'checkbox' %>
+        <% q.choices.each_with_index do |choice, i| %>
+          <%= f.radio_button q.question_number, i %>
+          <label for="answer_<%= q.question_number %>_<%= i %>"><%= choice %></label><br />
+        <% end %>
+      <% elsif q.type == 'pulldown' %>
+        <%
+          list = []
+          q.choices.each_with_index do |choice, i|
+            list << [choice, i]
+          end
+        %>
+        <%= f.select q.question_number, list %>
+      <% elsif q.type == 'textarea' %>
+        <%= f.text_area q.question_number, size: '40x5' %>
+      <% end %>
     </div>
+    <div class="clear"></div>
   <% end %>
-
-  <div class="field">
-    <%= f.label :user_id %><br />
-    <%= f.number_field :user_id %>
-  </div>
-  <div class="field">
-    <%= f.label :enquete_id %><br />
-    <%= f.text_field :enquete_id %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+  <%= f.hidden_field :user_id, value: 1 %>
+  <%= f.hidden_field :enquete_id, value: @enquete.id %>
+  <div><%= f.submit 'この内容で送信する' %></div>
 <% end %>

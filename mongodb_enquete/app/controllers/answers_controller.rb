@@ -1,4 +1,4 @@
-class AnswersController < ApplicationController
+﻿class AnswersController < ApplicationController
   # GET /answers
   # GET /answers.json
   def index
@@ -21,9 +21,16 @@ class AnswersController < ApplicationController
     end
   end
 
+  # GET /answers/list
+  # GET /answers/list.json
+  def list
+    @answers = Answer.all
+  end
+
   # GET /answers/new
   # GET /answers/new.json
   def new
+    @enquete = Enquete.find(params[:enquete_id])
     @answer = Answer.new
 
     respond_to do |format|
@@ -40,17 +47,59 @@ class AnswersController < ApplicationController
   # POST /answers
   # POST /answers.json
   def create
-    @answer = Answer.new(params[:answer])
+    if params[:commit]
+      questions = Enquete.find(params[:answer][:enquete_id]).questions
+      @err_msg = {}
 
-    respond_to do |format|
-      if @answer.save
-        format.html { redirect_to @answer, notice: 'Answer was successfully created.' }
-        format.json { render json: @answer, status: :created, location: @answer }
+      questions.each do |q|
+        if q.required_column && params[:answer][q.question_number].blank?
+          @err_msg[q.question_number] = "入力されていません"
+        end
+      end
+
+      if @err_msg.blank?
+        answer = Answer.new(params[:answer])
+        answer.save!
+        flash[:msg] = "回答を受け付けました"
+        redirect_to action: 'show', controller: 'enquetes', id: params[:answer][:enquete_id]
       else
-        format.html { render action: "new" }
-        format.json { render json: @answer.errors, status: :unprocessable_entity }
+        @enquete = Enquete.find(params[:answer][:enquete_id])
+        render action: 'show'
       end
     end
+  end
+
+  # POST /answers
+  # POST /answers.json
+  def create_test
+    2.times do
+      condition = {}
+      (1..12).each do |n|
+        type = rand(100) % 4
+        if type == 1
+          condition["q_#{n}"] = "a_#{n}"
+        elsif type == 2
+          condition["q_#{n}"] = "a\nb_#{n}"
+        elsif type == 3
+          condition["q_#{n}"] = 1 + rand(5)
+        else
+          list = [1, 2, 3, 4, 5]
+          condition["q_#{n}"] = list.sort_by{rand}[0..rand(5)]
+        end
+      end
+
+      answer = Answer.new(
+          condition.merge(
+            user_id: 1,
+            enquete_id: 1
+          )
+      )
+      answer[:q_13] = 11
+      answer[:q_14] = "test"
+      answer.save!
+    end
+
+    render test: "completed"
   end
 
   # PUT /answers/1

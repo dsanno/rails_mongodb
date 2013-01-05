@@ -1,4 +1,4 @@
-class EnquetesController < ApplicationController
+﻿class EnquetesController < ApplicationController
   # GET /enquetes
   # GET /enquetes.json
   def index
@@ -51,6 +51,67 @@ class EnquetesController < ApplicationController
         format.json { render json: @enquete.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # POST /enquetes
+  # POST /enquetes.json
+  def create_default
+    enquete = Enquete.new(
+        name: "アンケート"
+    )
+
+    question_list = []
+    type_h = {
+      q_1: 'text',
+      q_2: 'checkbox',
+      q_3: 'radio',
+      q_4: 'pulldown',
+      q_5: 'textarea'
+    }
+    body_h = {
+      q_1: '好きなスポーツを記入してください',
+      q_2: 'よく飲むお酒を選択してください（複数回答可）',
+      q_3: 'あなたの性別を選択してください',
+      q_4: 'あなたの年齢を選択してください',
+      q_5: 'このアンケートはどこでお知りになりましたか'
+    }
+    choice_h = {
+      q_1: nil,
+      q_2: %w(
+        お酒は飲まない
+        ビール
+        日本酒
+        焼酎
+        赤ワイン
+        白ワイン
+        カクテル
+        ウイスキー
+      ),
+      q_3: %w(男性 女性),
+      q_4: %w(20～29歳 30～39歳 40～49歳 50～59歳 60歳以上),
+      q_5: nil
+    }
+    require_h = {
+      q_1: true,
+      q_2: true,
+      q_3: true,
+      q_4: true,
+      q_5: false
+    }
+    (1..5).each do |n|
+      question_list << Question.new(
+        question_number: "q_#{n}",
+        body: body_h["q_#{n}".to_sym],
+        type: type_h["q_#{n}".to_sym],
+        choices: choice_h["q_#{n}".to_sym],
+        required_column: require_h["q_#{n}".to_sym]
+      )
+    end
+
+    enquete.questions = question_list
+    enquete.save!
+
+    render text: "completed"
   end
 
   # PUT /enquetes/1
